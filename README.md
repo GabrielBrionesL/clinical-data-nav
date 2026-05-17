@@ -1,6 +1,6 @@
 # Plume Care Navigator: Technical Design & Architecture
 
-![Architecture Diagram](docs/plume_architecture_diagram_v2.png)
+![Architecture Diagram](main/plume_architecture_diagram_v2.png)
 
 ## Overview
 
