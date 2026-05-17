@@ -58,6 +58,19 @@ Every tool in this stack was chosen to balance performance, cost, and compliance
 
 ---
 
+## Getting Started
+
+To run this project locally:
+
+1. **Generate Data:** Run `notebooks/00_data_generation.ipynb` in Google Colab to generate the synthetic Parquet files.
+2. **Setup GCP:** Create a GCP project, enable the BigQuery API, and create a dataset named `plume_bronze`.
+3. **Ingest Data:** Run `notebooks/01_bigquery_ingestion.ipynb` to load the Parquet files into BigQuery.
+4. **Run dbt:** Navigate to `dbt/`, configure `profiles.yml` with your GCP project, and run `dbt build`.
+5. **Build Vector DB:** Run `notebooks/02_rag_pipeline.ipynb` to download the WPATH SoC v8 guidelines, embed them into ChromaDB, and test the LangChain chain.
+6. **Launch UI:** Navigate to `app/` and run `streamlit run app.py`.
+
+*(Note: The Airflow DAGs are provided as production-grade code samples demonstrating orchestration design and can be executed locally via Astro CLI or a Docker-based Airflow setup.)*
+
 ## Repository Structure
 
 ```text
@@ -86,17 +99,3 @@ plume_care_navigator/
 │   ├── scrubber.py                 # Presidio PII scrubber (clinical deny-list)
 │   └── requirements.txt
 ├── .github/workflows/dbt_ci.yml    # CI/CD: Runs `dbt build` on every PR
----
-
-## Getting Started
-
-To run this project locally:
-
-1. **Generate Data:** Run `notebooks/00_data_generation.ipynb` in Google Colab to generate the synthetic Parquet files.
-2. **Setup GCP:** Create a GCP project, enable the BigQuery API, and create a dataset named `plume_bronze`.
-3. **Ingest Data:** Run `notebooks/01_bigquery_ingestion.ipynb` to load the Parquet files into BigQuery.
-4. **Run dbt:** Navigate to `dbt/`, configure `profiles.yml` with your GCP project, and run `dbt build`.
-5. **Build Vector DB:** Run `notebooks/02_rag_pipeline.ipynb` to download the WPATH SoC v8 guidelines, embed them into ChromaDB, and test the LangChain chain.
-6. **Launch UI:** Navigate to `app/` and run `streamlit run app.py`.
-
-*(Note: The Airflow DAGs are provided as production-grade code samples demonstrating orchestration design and can be executed locally via Astro CLI or a Docker-based Airflow setup.)*
