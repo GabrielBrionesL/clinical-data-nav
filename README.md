@@ -1,6 +1,6 @@
 # Plume Care Navigator: Technical Design & Architecture
 
-![Architecture Diagram](clinical-data-nav/plume_architecture_diagram_v2.png)
+<img width="2560" height="1440" alt="plume_architecture_diagram_v2" src="https://github.com/user-attachments/assets/84751419-8387-4afc-ac64-272900be61c6" />
 
 ## Overview
 
