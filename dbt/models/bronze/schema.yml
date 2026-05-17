@@ -1,0 +1,110 @@
+version: 2
+
+models:
+  - name: bronze_patients
+    description: "Raw patient demographics and HRT regimen data as ingested from Healthie EHR (or synthetic generator). No transformations applied."
+    columns:
+      - name: patient_id
+        description: "UUID primary key for the patient."
+        tests: [unique, not_null]
+      - name: state
+        description: "US state abbreviation of the patient's residence."
+        tests: [not_null]
+      - name: gender_identity
+        description: "Patient's self-reported gender identity."
+        tests: [not_null]
+      - name: hrt_regimen
+        description: "Current hormone replacement therapy regimen."
+      - name: birth_date
+        description: "Patient date of birth."
+        tests: [not_null]
+      - name: start_date
+        description: "Date the patient enrolled with Plume."
+        tests: [not_null]
+      - name: is_active
+        description: "Boolean flag indicating whether the patient is currently active."
+        tests: [not_null]
+
+  - name: bronze_subscriptions
+    description: "Raw Stripe subscription and billing data."
+    columns:
+      - name: subscription_id
+        description: "UUID primary key for the subscription."
+        tests: [unique, not_null]
+      - name: patient_id
+        description: "Foreign key to bronze_patients."
+        tests: [not_null]
+      - name: plan_type
+        description: "Subscription plan: Monthly or Annual."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Monthly', 'Annual']
+      - name: status
+        description: "Current subscription status."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Active', 'Canceled', 'Past Due']
+      - name: mrr
+        description: "Monthly Recurring Revenue in USD."
+        tests: [not_null]
+
+  - name: bronze_lab_results
+    description: "Raw lab results from Quest Diagnostics and Labcorp integrations."
+    columns:
+      - name: lab_id
+        description: "UUID primary key for the lab result."
+        tests: [unique, not_null]
+      - name: patient_id
+        description: "Foreign key to bronze_patients."
+        tests: [not_null]
+      - name: date
+        description: "Date the lab was collected."
+        tests: [not_null]
+      - name: test_name
+        description: "Name of the lab test."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Estradiol', 'Testosterone', 'Hemoglobin', 'Potassium']
+      - name: result_value
+        description: "Numeric result value."
+        tests: [not_null]
+      - name: unit
+        description: "Unit of measurement."
+        tests: [not_null]
+      - name: flag
+        description: "Clinical flag: Normal, High, or Low."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Normal', 'High', 'Low']
+
+  - name: bronze_clinical_visits
+    description: "Raw clinical visit records from Healthie."
+    columns:
+      - name: visit_id
+        description: "UUID primary key for the visit."
+        tests: [unique, not_null]
+      - name: patient_id
+        description: "Foreign key to bronze_patients."
+        tests: [not_null]
+      - name: provider_id
+        description: "UUID of the treating provider."
+        tests: [not_null]
+      - name: date
+        description: "Date of the visit."
+        tests: [not_null]
+      - name: visit_type
+        description: "Type of visit."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Intake', 'Follow-up HRT', 'Mental Health', 'Urgent', 'Lab Review']
+      - name: status
+        description: "Visit completion status."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Completed', 'No-Show', 'Canceled']

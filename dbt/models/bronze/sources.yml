@@ -1,0 +1,16 @@
+version: 2
+
+sources:
+  - name: plume_bronze
+    description: "Raw ingestion layer in BigQuery — loaded directly from Parquet files via bq load."
+    database: "{{ env_var('DBT_PROJECT_ID') }}"
+    schema: plume_bronze
+    tables:
+      - name: patients
+        description: "Raw patient demographics from Healthie EHR."
+      - name: subscriptions
+        description: "Raw subscription and billing data from Stripe."
+      - name: lab_results
+        description: "Raw lab results from Quest Diagnostics and Labcorp."
+      - name: clinical_visits
+        description: "Raw clinical visit records from Healthie."
