@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: mart_patient_rag_context
+    description: >
+      The architectural bridge between the structured data warehouse and the LangChain RAG pipeline.
+      Aggregates each patient's full clinical state (demographics, HRT regimen, latest labs, visit
+      engagement, subscription status, and state policy) into a single anonymised text column
+      (rag_context_text) that is consumed directly by the LangChain dual retriever.
+      Uses patient_token (SHA-256 hash) as the identifier — no direct PHI is included.
+    columns:
+      - name: patient_token
+        description: "SHA-256 hashed patient identifier — the primary key for this mart."
+        tests: [unique, not_null]
+      - name: rag_context_text
+        description: "Anonymised natural language summary of the patient's clinical state for LLM consumption."
+        tests: [not_null]
+      - name: state
+        tests: [not_null]
