@@ -1,0 +1,73 @@
+name: dbt CI — Test & Docs
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'dbt/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'dbt/**'
+
+jobs:
+  dbt-test:
+    name: Run dbt build and tests
+    runs-on: ubuntu-latest
+
+    env:
+      DBT_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dbt-bigquery
+        run: pip install dbt-bigquery==1.8.0
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+      - name: Write dbt profiles.yml
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml << EOF
+          plume_care_navigator:
+            target: ci
+            outputs:
+              ci:
+                type: bigquery
+                method: service-account-json
+                project: ${{ secrets.GCP_PROJECT_ID }}
+                dataset: plume_bronze
+                location: US
+                threads: 4
+                timeout_seconds: 300
+                keyfile_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+          EOF
+
+      - name: dbt deps
+        working-directory: dbt
+        run: dbt deps
+
+      - name: dbt build (compile + run + test)
+        working-directory: dbt
+        run: dbt build --target ci --select bronze silver gold mart
+
+      - name: dbt docs generate
+        working-directory: dbt
+        run: dbt docs generate --target ci
+
+      - name: Upload dbt docs as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dbt-docs
+          path: dbt/target/
+          retention-days: 7
