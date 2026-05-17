@@ -1,0 +1,32 @@
+name: 'plume_care_navigator'
+version: '1.0.0'
+config-version: 2
+
+profile: 'plume_care_navigator'
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths:  ["tests"]
+docs-paths:  ["docs"]
+
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  plume_care_navigator:
+    bronze:
+      +materialized: table
+      +schema: bronze
+      +tags: ["bronze", "raw"]
+    silver:
+      +materialized: table
+      +schema: silver
+      +tags: ["silver", "cleaned"]
+    gold:
+      +materialized: table
+      +schema: gold
+      +tags: ["gold", "dimensional"]
+    mart:
+      +materialized: table
+      +schema: mart
+      +tags: ["mart", "ai_ready"]
