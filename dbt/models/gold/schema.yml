@@ -1,0 +1,52 @@
+version: 2
+
+models:
+  - name: dim_patient
+    description: "Patient dimension table — demographics, HRT regimen, and current subscription status. Type 1 SCD."
+    columns:
+      - name: patient_token
+        description: "SHA-256 hash of patient_id — HIPAA-compliant tokenised identifier."
+        tests: [unique, not_null]
+      - name: patient_id_raw
+        description: "Original UUID — for internal joins only, not exposed to BI tools."
+        tests: [unique, not_null]
+      - name: state
+        tests: [not_null]
+      - name: gender_identity
+        tests: [not_null]
+      - name: hrt_category
+        tests:
+          - accepted_values:
+              values: ['Feminising HRT', 'Masculinising HRT', 'No HRT / Other']
+
+  - name: fact_lab_results
+    description: "Lab result fact table joined to dim_patient. Primary table for clinical outcomes analysis."
+    columns:
+      - name: lab_id
+        tests: [unique, not_null]
+      - name: patient_token
+        tests: [not_null]
+      - name: result_value
+        tests: [not_null]
+      - name: flag
+        tests:
+          - accepted_values:
+              values: ['Normal', 'High', 'Low']
+
+  - name: fact_visits
+    description: "Clinical visit fact table joined to dim_patient. Used for provider utilisation and engagement analysis."
+    columns:
+      - name: visit_id
+        tests: [unique, not_null]
+      - name: patient_token
+        tests: [not_null]
+
+  - name: dim_state_policy
+    description: "State-level gender-affirming care policy dimension (SCD Type 2). Tracks legislative changes over time."
+    columns:
+      - name: state
+        tests: [not_null]
+      - name: policy_status
+        tests:
+          - accepted_values:
+              values: ['Protected', 'Neutral', 'Restricted']
