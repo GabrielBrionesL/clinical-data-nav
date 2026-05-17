@@ -1,0 +1,51 @@
+version: 2
+
+models:
+  - name: silver_patients
+    description: "Cleaned, typed, and PHI-tokenised patient records. patient_id is hashed to patient_token via SHA-256."
+    columns:
+      - name: patient_token
+        description: "SHA-256 hash of patient_id — HIPAA-compliant tokenised identifier."
+        tests: [unique, not_null]
+      - name: patient_id_raw
+        description: "Original UUID — for internal joins only."
+        tests: [unique, not_null]
+      - name: state
+        tests: [not_null]
+      - name: hrt_category
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Feminising HRT', 'Masculinising HRT', 'No HRT / Other']
+      - name: age_years
+        tests: [not_null]
+
+  - name: silver_subscriptions
+    description: "Cleaned Stripe subscription records with derived MRR/ARR and churn metrics."
+    columns:
+      - name: subscription_id
+        tests: [unique, not_null]
+      - name: patient_id_raw
+        tests: [not_null]
+      - name: mrr
+        tests: [not_null]
+      - name: is_churned
+        tests: [not_null]
+
+  - name: silver_lab_results
+    description: "Cleaned lab results with clinical reference ranges and therapeutic target ranges."
+    columns:
+      - name: lab_id
+        tests: [unique, not_null]
+      - name: patient_id_raw
+        tests: [not_null]
+      - name: result_value
+        tests: [not_null]
+
+  - name: silver_clinical_visits
+    description: "Cleaned Healthie visit records with derived engagement flags."
+    columns:
+      - name: visit_id
+        tests: [unique, not_null]
+      - name: patient_id_raw
+        tests: [not_null]
